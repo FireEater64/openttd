@@ -1,17 +1,17 @@
-FROM ubuntu:18.04
+FROM alpine:latest
 MAINTAINER Mats Bergmann <bateau@sea-shell.org>
 
-ARG OPENTTD_VERSION="1.10.3"
-ARG OPENGFX_VERSION="0.6.0"
+ARG OPENTTD_VERSION="1.10.2-r0"
+ARG OPENGFX_VERSION="0.6.0-r0"
 
-ADD prepare.sh /tmp/prepare.sh
-ADD cleanup.sh /tmp/cleanup.sh
-ADD buildconfig /tmp/buildconfig
 ADD --chown=1000:1000 openttd.sh /openttd.sh
 
-RUN chmod +x /tmp/prepare.sh /tmp/cleanup.sh /openttd.sh
-RUN /tmp/prepare.sh \
-    && /tmp/cleanup.sh
+RUN apk add dumb-init --no-cache && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
+    apk add openttd=${OPENTTD_VERSION} openttd-opengfx=${OPENGFX_VERSION} --no-cache && \
+    adduser --disabled-password --uid 1000 --shell /bin/sh --gecos "" openttd && \
+    addgroup openttd users && \
+    chmod +x /openttd.sh
 
 VOLUME /home/openttd/.openttd
 
